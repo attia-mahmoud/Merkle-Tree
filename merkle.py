@@ -109,7 +109,16 @@ class MerkleTree:
 
         self.root = current_level[0] if current_level else None
 
-        return self.root
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048
+        )
+
+        public_key = private_key.public_key()
+        
+        signature = self.sign_tree(private_key)
+
+        return self.root, signature, public_key
 
     def get_proof(self, data_block):
         """
@@ -179,7 +188,7 @@ class MerkleTree:
         Raises:
             ValueError: If the root is not set before signing.
         """
-        return private_key.sign(
+        return None if self.root == None else private_key.sign(
             self.root.encode(), # Convert the root hash to bytes
             padding.PSS(
                 mgf=padding.MGF1(hashes.SHA256()), # Use SHA-256 in MGF1 padding
