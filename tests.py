@@ -27,9 +27,9 @@ class TestMerkleTree(unittest.TestCase):
     def test_add_single_data(self):
         tree = MerkleTree()
         tree.add_data(["hello"])
-        tree.build_tree()
+        root, _, _ = tree.build_tree()
         self.assertEqual(len(tree.leaves), 1)
-        self.assertEqual(tree.root, hash_data(hash_data("hello") + hash_data("hello")))
+        self.assertEqual(root, hash_data(hash_data("hello") + hash_data("hello")))
 
     def test_add_multiple_data(self):
         tree = MerkleTree()
@@ -43,9 +43,9 @@ class TestMerkleTree(unittest.TestCase):
     def test_add_no_data(self):
         tree = MerkleTree()
         tree.add_data([])
-        tree.build_tree()
+        root, _, _ = tree.build_tree()
         self.assertEqual(len(tree.leaves), 0)
-        self.assertIsNone(tree.root)
+        self.assertIsNone(root)
 
     def test_odd_number_of_leaves(self):
         tree = MerkleTree()
@@ -67,7 +67,7 @@ class TestMerkleTreeProof(unittest.TestCase):
         tree = MerkleTree()
         data_blocks = ["block1", "block2", "block3", "block4"]
         tree.add_data(data_blocks)
-        root = tree.build_tree()
+        root, _, _  = tree.build_tree()
 
         # Select a block to test
         test_block = "block3"
@@ -85,16 +85,7 @@ class TestMerkleTreeSignature(unittest.TestCase):
         tree = MerkleTree()
         data_blocks = ["block1", "block2", "block3", "block4"]
         tree.add_data(data_blocks)
-        tree.build_tree()
-
-        private_key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048
-        )
-
-        public_key = private_key.public_key()
-
-        signature = tree.sign_tree(private_key)
+        _, signature, public_key = tree.build_tree()
 
         signature_valid = tree.verify_signature(signature, public_key)
 
