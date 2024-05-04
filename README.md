@@ -1,14 +1,26 @@
 # Merkle Tree
  
-Running the code
+Clone the repository
 
 ```
-python merkle.py
+git clone https://github.com/attia-mahmoud/Merkle-Tree
 ```
 
+Install the dependencies
 
-Testing the code
+```
+pip install -r requirements.txt
+```
+
+Running all test cases
 
 ```
 python tests.py
 ```
+
+Running the interactive program
+
+```
+python driver.py
+```
+
