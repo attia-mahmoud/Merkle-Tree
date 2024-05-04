@@ -1,4 +1,5 @@
 from merkle import MerkleTree
+import cryptography.hazmat.primitives.serialization as serialization
 
 # Initialize the MerkleTree and key pair
 tree = MerkleTree()
@@ -12,13 +13,13 @@ while True:
     tree.add_data([data_block])
 
 # Build the Merkle Tree
-root, signature, public_key = tree.build_tree()
+root, signature = tree.build_tree()
 
 # Display the root and signature
 print("\nMerkle Tree built successfully.")
-print(f"Root hash: {tree.root}")
-print(f"Root signature: {signature.hex()}\n")
-print(f"Public Key: {public_key.public_bytes()}\n")
+print(f"Root hash: {root}")
+print(f"Root signature: {signature}\n")
+print(f"Public Key saved in pub.pem\n")
 
 # Interactive menu
 while True:
@@ -47,8 +48,8 @@ while True:
 
     elif choice == '3':
         sig = input("Provide the signature: ")
-        key = input("Provide the public key: ")
-        result = tree.verify_signature(signature, public_key)
+        key_path = input("Provide the public key file path: ")
+        result = tree.verify_signature(sig, key_path)
         print(f"Signature verification result: {result}")
 
     elif choice == '4':
