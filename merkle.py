@@ -3,6 +3,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat, NoEncryption
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
+import cryptography.hazmat.primitives.serialization as serialization
 
 def hash_data(data):
     """
@@ -115,10 +117,18 @@ class MerkleTree:
         )
 
         public_key = private_key.public_key()
+
+        pem = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM, 
+            format=serialization.PublicFormat.SubjectPublicKeyInfo\
+        )
+        with open("pub.pem", 'wb') as pem_out:
+            pem_out.write(pem)
+        pem_out.close()
         
         signature = self.sign_tree(private_key)
 
-        return self.root, signature, public_key
+        return self.root, signature.hex() if signature else signature
 
     def get_proof(self, data_block):
         """
@@ -197,7 +207,7 @@ class MerkleTree:
             hashes.SHA256() # Use SHA-256 as the hash function
         )
 
-    def verify_signature(self, signature, public_key):
+    def verify_signature(self, signature, key_path):
         """
         This method checks if the provided digital signature of the Merkle root can be authenticated with the given public key,
         ensuring the integrity and authenticity of the Merkle root. 
@@ -212,9 +222,12 @@ class MerkleTree:
         Note:
             This method catches and handles all exceptions, returning False for any error encountered during verification.
         """
+        f = open(key_path, "r")
+        public_key = load_pem_public_key(f.read().encode('utf-8'))
+        
         try:
             public_key.verify(
-                signature,
+                bytes.fromhex(signature),
                 self.root.encode(), 
                 padding.PSS(
                     mgf=padding.MGF1(hashes.SHA256()), 
