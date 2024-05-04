@@ -1,5 +1,6 @@
 import unittest
 from merkle import *
+import cryptography.hazmat.primitives.serialization as serialization
 
 class TestHashData(unittest.TestCase):
     def test_hash_data_string(self):
@@ -27,7 +28,7 @@ class TestMerkleTree(unittest.TestCase):
     def test_add_single_data(self):
         tree = MerkleTree()
         tree.add_data(["hello"])
-        root, _, _ = tree.build_tree()
+        root, _= tree.build_tree()
         self.assertEqual(len(tree.leaves), 1)
         self.assertEqual(root, hash_data(hash_data("hello") + hash_data("hello")))
 
@@ -43,7 +44,7 @@ class TestMerkleTree(unittest.TestCase):
     def test_add_no_data(self):
         tree = MerkleTree()
         tree.add_data([])
-        root, _, _ = tree.build_tree()
+        root, _ = tree.build_tree()
         self.assertEqual(len(tree.leaves), 0)
         self.assertIsNone(root)
 
@@ -67,7 +68,7 @@ class TestMerkleTreeProof(unittest.TestCase):
         tree = MerkleTree()
         data_blocks = ["block1", "block2", "block3", "block4"]
         tree.add_data(data_blocks)
-        root, _, _  = tree.build_tree()
+        root, _  = tree.build_tree()
 
         # Select a block to test
         test_block = "block3"
@@ -85,9 +86,9 @@ class TestMerkleTreeSignature(unittest.TestCase):
         tree = MerkleTree()
         data_blocks = ["block1", "block2", "block3", "block4"]
         tree.add_data(data_blocks)
-        _, signature, public_key = tree.build_tree()
+        _, signature = tree.build_tree()
 
-        signature_valid = tree.verify_signature(signature, public_key)
+        signature_valid = tree.verify_signature(signature, "pub.pem")
 
         self.assertTrue(signature_valid)
 
